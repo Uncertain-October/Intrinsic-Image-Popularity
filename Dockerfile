@@ -1,4 +1,4 @@
-FROM python:3.12.7 AS builder
+FROM python:3.13 AS builder
 
 
 # Allow statements and log messages to immediately appear in the Knative logs
@@ -22,7 +22,7 @@ RUN pip install pipenv
 RUN --mount=type=cache,target=/home/root/.cache/pipenv pipenv install
 
 
-FROM python:3.12.7 AS runtime
+FROM python:3.13 AS runtime
 
 RUN pip install pipenv && mkdir -pv -m 700 /iipa-workspace 
 ENV APP_HOME=/iipa-workspace
