@@ -504,9 +504,18 @@ INTERNAL_IPS = ["127.0.0.1"]
 #     else False
 # )
 
-STATIC_URL = BASE_DIR / "static"
-# if GS_BUCKET_NAME == "local":
-STATIC_ROOT = STATIC_URL
+# The URL prefix for static files. This must be a string, not a Path,
+# to avoid attribute errors in Django's static file handling.
+STATIC_URL = "/static/"
+
+# Where `collectstatic` should gather static files. Using a Path object
+# here is appropriate because it represents a filesystem location.
+STATIC_ROOT = BASE_DIR / "staticfiles"
+# Additional directories of static files that Django should also look for.
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "imageRater" / "static",
+]
 # elif GS_BUCKET_NAME == "iipa-static":
 # project_id = ENV("GOOGLE_CLOUD_PROJECT")
 # STATIC_ROOT = GS_BUCKET_NAME
@@ -553,6 +562,7 @@ STATIC_ROOT = STATIC_URL
 
 
 MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

@@ -8,6 +8,7 @@ from pydngconverter import DNGConverter
 import argparse
 import os
 import sys
+from pathlib import Path
 import torch
 import torchvision.models
 import torchvision.transforms as transforms
@@ -115,14 +116,10 @@ def processImage(popularityDictionary, model, path, processedPath):
 
 def getExtensionAndPath(path):
     LOGGER.debug("A path:" + path)
-    processedPath = os.path.abspath(os.curdir + "/IIPA/media" + path)
-    LOGGER.debug("A.1 processed path" + processedPath)
-    fileName = None
-    fileExtension = None
-    if os.path.isfile(processedPath):
-        fileName, fileExtension = os.path.splitext(processedPath)
-        LOGGER.debug(fileName, fileExtension)
-    return processedPath, fileExtension
+    processed_path = Path(settings.MEDIA_ROOT) / Path(path).name
+    LOGGER.debug("A.1 processed path" + str(processed_path))
+    file_extension = processed_path.suffix if processed_path.is_file() else None
+    return str(processed_path), file_extension
 
 
 def loadModel(modelPath):
