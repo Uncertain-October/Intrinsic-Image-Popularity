@@ -435,7 +435,7 @@ WSGI_APPLICATION = "IIPA.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-LOGGER.debug(DBSECRET.get("password")) if os.environ.get("DEBUG") == "True" else False
+# Do not log sensitive information such as database passwords.
 
 try:
     DATABASES = {
