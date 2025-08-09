@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from asgiref.sync import async_to_sync
 from django.conf import settings
-from google.cloud import storage
+# from google.cloud import storage
 from io import BytesIO
 from PIL import Image
-from pydngconverter import DNGConverter, flags
-from urllib.request import urlopen
+from pydngconverter import DNGConverter
 import argparse
 import os
 import sys
@@ -19,9 +18,9 @@ LOGGER = settings.LOGGER
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LOGGER.debug(device.type)
-LOGGER.debug(
-    f'path: {os.path.join(os.getcwd(), "credential.json")}, creds: {settings.GS_CREDENTIALS}'
-)
+# LOGGER.debug(
+#     f'path: {os.path.join(os.getcwd(), "credential.json")}, creds: {settings.GS_CREDENTIALS}'
+# )
 # LOGGER.debug(f'GCP MODE: {settings.GCP_DEV}, su: {os.environ.get("DJANGO_SUPERUSER_PASSWORD")}, {os.environ.get("DJANGO_SUPERUSER_USERNAME")}')
 LOGGER.debug(f"\n\n\nCSRF_ONLY:{settings.CSRF_COOKIE_SECURE} \n\n\n")
 
@@ -142,21 +141,21 @@ def convertDNGtoJPEG(processedPath):
     return path
 
 
-def processImageGCP(popularityDictionary, model, path):
-    LOGGER.debug(path)
-    fileName, fileExtension = os.path.splitext(path)
-    gStorage = storage.Client(credentials=settings.GS_CREDENTIALS)
-    storageObj = gStorage._http.get(path)
-    processedPath = storageObj.content
-    processedUrl = storageObj.url
-    if fileExtension in [".dng", ".DNG"]:
-        path = convertDNGtoJPEG(processedUrl)
-        image = Image.open(path)
-    else:
-        image = Image.open(BytesIO(processedPath))
-    prediction = predict(image, model)
-    LOGGER.debug("prediction: " + str(prediction))
-    popularityDictionary[path] = prediction
+# def processImageGCP(popularityDictionary, model, path):
+#     LOGGER.debug(path)
+#     fileName, fileExtension = os.path.splitext(path)
+#     gStorage = storage.Client(credentials=settings.GS_CREDENTIALS)
+#     storageObj = gStorage._http.get(path)
+#     processedPath = storageObj.content
+#     processedUrl = storageObj.url
+#     if fileExtension in [".dng", ".DNG"]:
+#         path = convertDNGtoJPEG(processedUrl)
+#         image = Image.open(path)
+#     else:
+#         image = Image.open(BytesIO(processedPath))
+#     prediction = predict(image, model)
+#     LOGGER.debug("prediction: " + str(prediction))
+#     popularityDictionary[path] = prediction
 
 
 def processImageLocal(popularityDictionary, model, path):
@@ -173,24 +172,24 @@ def processImageLocal(popularityDictionary, model, path):
             LOGGER.debug(popularityDictionary)
 
 
-def rateImagesApp(imagePath, modelPath):
+def rateImagesApp(imagePath, modelPath) -> dict[str, float]:
     LOGGER.debug("In rateImagesApp")
     try:
-        popularityDictionary = {}
         LOGGER.debug(modelPath)
         model = loadModel(modelPath)
         for path in imagePath:
-            if settings.LOCAL_DEV:
-                processImageLocal(popularityDictionary, model, path)
-            else:
-                processImageGCP(popularityDictionary, model, path)
-                LOGGER.debug(f"POP POP DICT: {popularityDictionary.__str__()}")
-            return popularityDictionary
+            # if settings.LOCAL_DEV:
+            processImageLocal(popularityDictionary, model, path)
+            # else:
+            #     processImageGCP(popularityDictionary, model, path)
+            #     LOGGER.debug(f"POP POP DICT: {popularityDictionary.__str__()}")
+            
     except Exception as err:
         LOGGER.debug(sys.exc_info())
         LOGGER.debug(err)
         raise err
 
+    return popularityDictionary
 
 if __name__ == "__main__":
     model = setUpModel()

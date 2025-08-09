@@ -10,27 +10,28 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-import io
+# import io
 import json
 import logging
 import os
 import sys
 import environ
 from pathlib import Path
-from urllib.parse import urlparse
 
-import boto3
-from botocore.exceptions import ClientError
+# from urllib. import urlparse
 
-import google.auth
-from google.cloud import secretmanager
-from google.oauth2 import service_account
+#  import boto3
+# from botocore.exceptions import ClientError
+
+# import google.auth
+# from google.cloud import secretmanager
+# from google.oauth2 import service_account
 import mimetypes
 
 
 mimetypes.add_type("text/javascript", ".js", True)
 
-LOG_DIR = "/var/log/iipa"
+LOG_DIR = "/Users/jacobzwickler/Documents/GitHub/Old_Projects/Intrinsic-Image-Popularity/log/iipa"
 LOG_FILE = os.path.join(LOG_DIR, "app.log")
 
 # Ensure the log directory exists
@@ -40,17 +41,16 @@ except OSError as e:
     print(f"Error creating log directory {LOG_DIR}: {e}")
     LOG_FILE = "iipa_debug.log"  # Fallback to a local file if creation fails
 
+FILE_HANDLER = logging.FileHandler(LOG_FILE)
+
+
 # Initialize logging
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        (
-            logging.FileHandler("/var/log/iipa/app.log")
-            if not os.getenv("LOCAL_DEV", "False") == "True"
-            else logging.FileHandler("iipa_debug.log")
-        ),
+        FILE_HANDLER,
     ],
 )
 LOGGER = logging.getLogger(__name__)
@@ -60,18 +60,18 @@ LOGGER.info("Logging configuration initialized.")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_NAME = "rds!db-5216300f-7c34-431e-ba9d-0319b2e4d113"
-REGION = "us-east-2"
+# SECRET_NAME = "rds!db-5216300f-7c34-431e-ba9d-0319b2e4d113"
+# REGION = "us-east-2"
 
 
-if os.environ.get("IS_BUILDING") != "True":
-    with open("../../run/secrets/aws_sec_key") as f:
-        secrets = f.read()
-        os.environ["AWS_SECRET_ACCESS_KEY"] = secrets
+# if os.environ.get("IS_BUILDING") != "True":
+#     with open("../../run/secrets/aws_sec_key") as f:
+#         secrets = f.read()
+#         os.environ["AWS_SECRET_ACCESS_KEY"] = secrets
 
-    with open("../../run/secrets/aws_acc_key") as f:
-        secrets = f.read()
-        os.environ["AWS_ACCESS_KEY_ID"] = secrets
+#     with open("../../run/secrets/aws_acc_key") as f:
+#         secrets = f.read()
+#         os.environ["AWS_ACCESS_KEY_ID"] = secrets
 
 
 # (
@@ -83,24 +83,24 @@ if os.environ.get("IS_BUILDING") != "True":
 # )
 
 
-session = boto3.Session()
+# session = boto3.Session()
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Change this to "False" when you are ready for production
 ENV = environ.Env(
     CLOUDRUN_SERVICE_URL=(str, ""),
-    DEBUG=(bool, True if os.environ.get("DEBUG") == "True" else False),
-    GCP_DEV=(bool, True if os.environ.get("GCP_DEV") == "True" else False),
-    GS_BUCKET_NAME=(str, "local"),
-    LOCAL_DEV=(bool, False),
+    DEBUG=(bool, True),
+    # GCP_DEV=(bool, True if os.environ.get("GCP_DEV") == "True" else False),
+    # GS_BUCKET_NAME=(str, "local"),
+    # LOCAL_DEV=(bool, False),
     SECRET_KEY=(str, ""),
-    SERVICE_ACCOUNT_KEY=(str, " "),
-    GS_CREDENTIALS=(service_account.Credentials, None),
-    GOOGLE_CLOUD_PROJECT=(str, " "),
-    SERVICE_URL_TAGS=(str, os.environ.get("SERVICE_URL_TAGS")),
-    AWS_ACCESS_KEY_ID=(str, os.environ.get("AWS_ACCESS_KEY_ID")),
-    AWS_SECRET_ACCESS_KEY=(str, os.environ.get("AWS_SECRET_ACCESS_KEY")),
+    # SERVICE_ACCOUNT_KEY=(str, " "),
+    # GS_CREDENTIALS=(service_account.Credentials, None),
+    # GOOGLE_CLOUD_PROJECT=(str, " "),
+    # SERVICE_URL_TAGS=(str, os.environ.get("SERVICE_URL_TAGS")),
+    # AWS_ACCESS_KEY_ID=(str, os.environ.get("AWS_ACCESS_KEY_ID")),
+    # AWS_SECRET_ACCESS_KEY=(str, os.environ.get("AWS_SECRET_ACCESS_KEY")),
 )
 
 ENV_FILE = os.path.join(BASE_DIR, ".env")
@@ -109,136 +109,138 @@ print("ENV:", ENV_FILE)
 
 
 DEBUG = ENV("DEBUG")
-LOCAL_DEV = ENV("LOCAL_DEV")
-SERVICE_ACCOUNT_KEY = ENV("SERVICE_ACCOUNT_KEY")
+# LOCAL_DEV = ENV("LOCAL_DEV")
+# SERVICE_ACCOUNT_KEY = ENV("SERVICE_ACCOUNT_KEY")
 SECRET_KEY = ENV("SECRET_KEY")
-GCP_DEV = ENV("GCP_DEV")
-GS_CREDENTIALS = ENV("GS_CREDENTIALS")
-GOOGLE_CLOUD_PROJECT = ENV("GOOGLE_CLOUD_PROJECT")
-AWS_ACCESS_KEY_ID = ENV("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = ENV("AWS_SECRET_ACCESS_KEY")
+# GCP_DEV = ENV("GCP_DEV")
+# GS_CREDENTIALS = ENV("GS_CREDENTIALS")
+# GOOGLE_CLOUD_PROJECT = ENV("GOOGLE_CLOUD_PROJECT")
+# AWS_ACCESS_KEY_ID = ENV("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = ENV("AWS_SECRET_ACCESS_KEY")
 
-SERVICE_URL_TAGS = (
-    os.environ.get("SERVICE_URL_TAGS", "").split(";")
-    if os.environ.get("SERVICE_URL_TAGS") is not None
-    else None
-)
+# SERVICE_URL_TAGS = (
+#     os.environ.get("SERVICE_URL_TAGS", "").split(";")
+#     if os.environ.get("SERVICE_URL_TAGS") is not None
+#     else None
+# )
 
-LOGGER.debug(f"GCP MODE: {GCP_DEV}")
-print(f"GCP MODE: {GCP_DEV}") if os.environ.get("DEBUG") == "True" else False
+# LOGGER.debug(f"GCP MODE: {GCP_DEV}")
+# print(f"GCP MODE: {GCP_DEV}") if os.environ.get("DEBUG") == "True" else False
 
 print(os.environ.keys()) if os.environ.get("DEBUG") == "True" else False
 LOGGER.debug(os.environ.keys())
 
-LOGGER.debug(f"SERVICE_URL_TAGS: {SERVICE_URL_TAGS}")
-(
-    print(f"SERVICE_URL_TAGS: {SERVICE_URL_TAGS}")
-    if os.environ.get("DEBUG") == "True"
-    else False
-)
+# LOGGER.debug(f"SERVICE_URL_TAGS: {SERVICE_URL_TAGS}")
+# (
+#     print(f"SERVICE_URL_TAGS: {SERVICE_URL_TAGS}")
+#     if os.environ.get("DEBUG") == "True"
+#     else False
+# )
 
-try:
-    with open("../unformatted_cred.json", "r") as fileObj:
-        keyHeader = "-----BEGIN PRIVATE KEY-----"
-        keyFooter = "-----END PRIVATE KEY-----"
-        fileData = fileObj.read()
+# try:
+#     with open("../unformatted_cred.json", "r") as fileObj:
+#         keyHeader = "-----BEGIN PRIVATE KEY-----"
+#         keyFooter = "-----END PRIVATE KEY-----"
+#         fileData = fileObj.read()
 
-        keyHeaderIndex = fileData.index("-----BEGIN PRIVATE KEY-----")
-        keyFooterIndex = fileData.index("-----END PRIVATE KEY-----")
+#         keyHeaderIndex = fileData.index("-----BEGIN PRIVATE KEY-----")
+#         keyFooterIndex = fileData.index("-----END PRIVATE KEY-----")
 
-        # LOGGER.debug(
-        #     f"{fileData[keyHeaderIndex : keyHeaderIndex + len(keyHeader)]},
-        #     {fileData[keyFooterIndex : keyFooterIndex + len(keyFooter)]},
-        #     {keyHeaderIndex},
-        #     {keyFooterIndex},"
-        # )
+#         # LOGGER.debug(
+#         #     f"{fileData[keyHeaderIndex : keyHeaderIndex + len(keyHeader)]},
+#         #     {fileData[keyFooterIndex : keyFooterIndex + len(keyFooter)]},
+#         #     {keyHeaderIndex},
+#         #     {keyFooterIndex},"
+#         # )
 
-        a1 = fileData[:keyHeaderIndex]
-        a2 = fileData[keyFooterIndex + len(keyFooter) + 1 :]
+#         a1 = fileData[:keyHeaderIndex]
+#         a2 = fileData[keyFooterIndex + len(keyFooter) + 1 :]
 
-        key = fileData[keyHeaderIndex + len(keyHeader) + 1 : keyFooterIndex]
+#         key = fileData[keyHeaderIndex + len(keyHeader) + 1 : keyFooterIndex]
 
-        key = key.replace("\n", " ").replace(" ", "\\n")
+#         key = key.replace("\n", " ").replace(" ", "\\n")
 
-        fileData = a1 + keyHeader + "\\n" + key + keyFooter + "\\n" + a2
+#         fileData = a1 + keyHeader + "\\n" + key + keyFooter + "\\n" + a2
 
-        LOGGER.debug(fileData)
+#         LOGGER.debug(fileData)
 
-        data = json.loads(fileData)
-        fileObj.close()
+#         data = json.loads(fileData)
+#         fileObj.close()
 
-    LOGGER.debug(SERVICE_ACCOUNT_KEY)
-    KEY_HEADER_INDEX = data  # json.loads(SERVICE_ACCOUNT_KEY.replace("\n", ""))
-    LOGGER.debug(f"Write {KEY_HEADER_INDEX}")
-    with open(os.path.join(os.getcwd(), "credential.json"), "w") as neep:
-        json.dump(KEY_HEADER_INDEX, neep)
-        neep.close()
+#     LOGGER.debug(SERVICE_ACCOUNT_KEY)
+#     KEY_HEADER_INDEX = data  # json.loads(SERVICE_ACCOUNT_KEY.replace("\n", ""))
+#     LOGGER.debug(f"Write {KEY_HEADER_INDEX}")
+#     with open(os.path.join(os.getcwd(), "credential.json"), "w") as neep:
+#         json.dump(KEY_HEADER_INDEX, neep)
+#         neep.close()
 
-    (
-        print(f'path: {os.path.join(os.getcwd(), "credential.json")}')
-        if os.environ.get("DEBUG") == "True"
-        else False
-    )
+#     (
+#         print(f'path: {os.path.join(os.getcwd(), "credential.json")}')
+#         if os.environ.get("DEBUG") == "True"
+#         else False
+#     )
 
-    with open(os.path.join(os.getcwd(), "credential.json"), "r") as neep:
-        data = json.load(neep)
-        neep.close()
+#     with open(os.path.join(os.getcwd(), "credential.json"), "r") as neep:
+#         data = json.load(neep)
+#         neep.close()
 
-    LOGGER.debug(data)
-    print(f"crede: {data}") if os.environ.get("DEBUG") == "True" else False
+#     LOGGER.debug(data)
+#     print(f"crede: {data}") if os.environ.get("DEBUG") == "True" else False
 
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
-        data,
-        scopes=[
-            "https://www.googleapis.com/auth/cloud-platform",
-            "https://www.googleapis.com/auth/devstorage.full_control",
-            "https://www.googleapis.com/auth/devstorage.read_only",
-            "https://www.googleapis.com/auth/devstorage.read_write",
-        ],
-    )
+#     GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+#         data,
+#         scopes=[
+#             "https://www.googleapis.com/auth/cloud-platform",
+#             "https://www.googleapis.com/auth/devstorage.full_control",
+#             "https://www.googleapis.com/auth/devstorage.read_only",
+#             "https://www.googleapis.com/auth/devstorage.read_write",
+#         ],
+#     )
 
-    LOGGER.debug(f"credsss: {GS_CREDENTIALS}")
-    LOGGER.debug(os.environ)
-    print(os.environ) if os.environ.get("DEBUG") == "True" else False
+#     LOGGER.debug(f"credsss: {GS_CREDENTIALS}")
+#     LOGGER.debug(os.environ)
+#     print(os.environ) if os.environ.get("DEBUG") == "True" else False
 
-except Exception as e:
-    LOGGER.error(f"failed to reformat credential {e}")
+# except Exception as e:
+#     LOGGER.error(f"failed to reformat credential {e}")
 
 # Attempt to load the Project ID into the environment, safely failing on error.
 try:
-    if GCP_DEV:
-        LOGGER.debug("start in GCP ENV MODE")
-        print("start in GCP ENV MODE")
-        _, os.environ["GOOGLE_CLOUD_PROJECT"] = google.auth.default(  # type: ignore
-            scopes=[
-                "https://www.googleapis.com/auth/cloud-platform",
-                "https://www.googleapis.com/auth/devstorage.full_control",
-                "https://www.googleapis.com/auth/devstorage.read_only",
-                "https://www.googleapis.com/auth/devstorage.read_write",
-            ]
-        )  # type: ignore
-        # Pull secrets from Secret Manager
-        project_id = ENV("GOOGLE_CLOUD_PROJECT")
-        client = secretmanager.SecretManagerServiceClient()
-        settings_name = os.environ.get("SETTINGS_NAME", "django_settings")
-        name = f"projects/{project_id}/secrets/{settings_name}/versions/latest"
-        payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
-        (
-            print(settings_name + " " + project_id + " " + payload + " ")
-            if ENV("DEBUG") is True
-            else False
-        )
-        print("here")
-        ENV.read_env(io.StringIO(payload))
-        ENV.read_env(ENV_FILE, overwrite=True) if LOCAL_DEV else None
-        print(ENV.__str__())
-    elif os.path.isfile(ENV_FILE):
+    # if GCP_DEV:
+    #     LOGGER.debug("start in GCP ENV MODE")
+    #     print("start in GCP ENV MODE")
+    #     _, os.environ["GOOGLE_CLOUD_PROJECT"] = google.auth.default(  # type: ignore
+    #         scopes=[
+    #             "https://www.googleapis.com/auth/cloud-platform",
+    #             "https://www.googleapis.com/auth/devstorage.full_control",
+    #             "https://www.googleapis.com/auth/devstorage.read_only",
+    #             "https://www.googleapis.com/auth/devstorage.read_write",
+    #         ]
+    #     )  # type: ignore
+    #     # Pull secrets from Secret Manager
+    #     project_id = ENV("GOOGLE_CLOUD_PROJECT")
+    #     client = secretmanager.SecretManagerServiceClient()
+    #     settings_name = os.environ.get("SETTINGS_NAME", "django_settings")
+    #     name = f"projects/{project_id}/secrets/{settings_name}/versions/latest"
+    #     payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
+    #     (
+    #         print(str(settings_name) + " " + str(project_id) + " " + str(payload) + " ")
+    #         if ENV("DEBUG") is True
+    #         else False
+    #     )
+    #     print("here")
+    #     ENV.read_env(io.StringIO(payload))
+    #     ENV.read_env(ENV_FILE, overwrite=True) if LOCAL_DEV else None
+    #     print(ENV.__str__())
+    # el
+
+    if os.path.isfile(ENV_FILE):
         LOGGER.debug("start in OTHER ENV MODE")
         ENV.read_env(ENV_FILE, overwrite=True)
 
-        if DEBUG and LOCAL_DEV and not GCP_DEV:
-            LOGGER.debug("In DEBUG and LOCAL MODE")
-        elif DEBUG:
+        # if DEBUG and LOCAL_DEV and not GCP_DEV:
+            # LOGGER.debug("In DEBUG and LOCAL MODE")
+        if DEBUG:
             LOGGER.debug("In DEBUG MODE")
 
     else:
@@ -246,13 +248,13 @@ try:
         raise Exception(
             "No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found."
         )
-except google.auth.exceptions.DefaultCredentialsError:  # type: ignore
-    LOGGER.debug("I AM HERE except")
+except Exception as e:  # type: ignore
+    LOGGER.debug(f"I AM HERE except: {e}")
     LOGGER.debug(sys.exc_info())
 
 SECRET_KEY = ENV("SECRET_KEY")
 
-print(ENV("AWS_ACCESS_KEY_ID")) if ENV("DEBUG") == True else False
+# print(ENV("AWS_ACCESS_KEY_ID")) if ENV("DEBUG") == True else False
 
 # CLIENT = botocore.session.get_session().create_client(
 #     "secretsmanager",
@@ -265,17 +267,17 @@ print(ENV("AWS_ACCESS_KEY_ID")) if ENV("DEBUG") == True else False
 # CACHE = SecretCache(config=CACHE_CONFIG, client=CLIENT)
 
 # Create a Secrets Manager client
-client = session.client(service_name="secretsmanager", region_name=REGION)
+# client = session.client(service_name="secretsmanager", region_name=REGION)
 
-try:
-    get_secret_value_response = client.get_secret_value(SecretId=SECRET_NAME)
-except ClientError as e:
-    # For a list of exceptions thrown, see
-    # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-    LOGGER.exception("Failed to get secret")
-    raise e
+# try:
+#     get_secret_value_response = client.get_secret_value(SecretId=SECRET_NAME)
+# except ClientError as e:
+#     # For a list of exceptions thrown, see
+#     # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+#     LOGGER.exception("Failed to get secret")
+#     raise e
 
-DBSECRET = json.loads(get_secret_value_response["SecretString"])
+# DBSECRET = json.loads(get_secret_value_response["SecretString"])
 
 # DBSECRET = json.loads(
 #     CACHE.get_secret_string("rds!db-5216300f-7c34-431e-ba9d-0319b2e4d113")
@@ -347,33 +349,33 @@ INSTALLED_APPS = [
 CLOUDRUN_SERVICE_URL = ENV("CLOUDRUN_SERVICE_URL").split(",") if ENV("CLOUDRUN_SERVICE_URL") != "" else ""  # type: ignore
 LOGGER.info(f"Cloud run url: {CLOUDRUN_SERVICE_URL}")
 CSRF_COOKIE_SECURE = False
-if CLOUDRUN_SERVICE_URL != "":
-    CSRF_COOKIE_SECURE = True
-    ALLOWED_HOSTS = []
-    CSRF_TRUSTED_ORIGINS = [
-        "https://iipa-32fdd.web.app",
-        "https://iipa-32fdd.firebaseapp.com",
-        "https://pic-pop-predict.web.app/",
-        "https://pic-pop-predict.firebaseapp.com",
-        "https://storage.googleapis.com/",
-    ]
-    CSRF_COOKIE_SAMESITE = "None"
-    if SERVICE_URL_TAGS is not None:
-        for tag in SERVICE_URL_TAGS:
-            for url in CLOUDRUN_SERVICE_URL:
-                if len(url) > 0:
-                    url = url.replace("https://", f"https://{tag}---")
-                    ALLOWED_HOSTS.append(urlparse(url).netloc)
-                    CSRF_TRUSTED_ORIGINS.append(url)
-    else:
-        for url in CLOUDRUN_SERVICE_URL:
-            ALLOWED_HOSTS.append(urlparse(url).netloc)
-            CSRF_TRUSTED_ORIGINS.append(url)
-    SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-else:
-    CSRF_COOKIE_SAMESITE = "Lax"
-    ALLOWED_HOSTS = ["*"]
+# if CLOUDRUN_SERVICE_URL != "":
+#     CSRF_COOKIE_SECURE = True
+#     ALLOWED_HOSTS = []
+#     CSRF_TRUSTED_ORIGINS = [
+#         "https://iipa-32fdd.web.app",
+#         "https://iipa-32fdd.firebaseapp.com",
+#         "https://pic-pop-predict.web.app/",
+#         "https://pic-pop-predict.firebaseapp.com",
+#         "https://storage.googleapis.com/",
+#     ]
+#     CSRF_COOKIE_SAMESITE = "None"
+#     if SERVICE_URL_TAGS is not None:
+#         for tag in SERVICE_URL_TAGS:
+#             for url in CLOUDRUN_SERVICE_URL:
+#                 if len(url) > 0:
+#                     url = url.replace("https://", f"https://{tag}---")
+#                     ALLOWED_HOSTS.append(urlparse(url).netloc)
+#                     CSRF_TRUSTED_ORIGINS.append(url)
+#     else:
+#         for url in CLOUDRUN_SERVICE_URL:
+#             ALLOWED_HOSTS.append(urlparse(url).netloc)
+#             CSRF_TRUSTED_ORIGINS.append(url)
+#     SECURE_SSL_REDIRECT = True
+#     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# else:
+CSRF_COOKIE_SAMESITE = "Lax"
+ALLOWED_HOSTS = ["*"]
 
 (
     print(f"\n\n\nALLOWED: {ALLOWED_HOSTS}\n\n\n")
@@ -441,15 +443,15 @@ try:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "HOST": "iipa.cj0jeurehhtj.us-east-2.rds.amazonaws.com",
+            "HOST": "localhost",
             "USER": "postgres",
-            "PASSWORD": DBSECRET.get("password"),
+            "PASSWORD": "RDF6*KUD.BRQrbJ!k8tTR-FDEJ*!DxhEu99fR@@KYGKDcvbRqjxcJtiq*Kn!tvjx-Y.gDL8raLZZ2",
             "NAME": "iipa",
-            "PORT": "5432",
-            "SSL": {
-                "sslrootcert": "/.aws/us-east-2-bundle.pem",
-                "sslmode": "verify-ca",
-            },
+            "PORT": "5433",
+            # "SSL": {
+            #     "sslrootcert": "/.aws/us-east-2-bundle.pem",
+            #     "sslmode": "verify-ca",
+            # },
         }
     }
 except Exception as e:
@@ -495,52 +497,59 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 
 # Define static storage via django-storages[google]
-GS_BUCKET_NAME = ENV("GS_BUCKET_NAME")
-(
-    print(f"storage: {GS_BUCKET_NAME}, cred: {GS_CREDENTIALS}")
-    if os.environ.get("DEBUG") == "True"
-    else False
-)
+# GS_BUCKET_NAME = ENV("GS_BUCKET_NAME")
+# (
+#     print(f"storage: {GS_BUCKET_NAME}, cred: {GS_CREDENTIALS}")
+#     if os.environ.get("DEBUG") == "True"
+#     else False
+# )
 
-STATIC_URL = "static/"
-
-if GS_BUCKET_NAME == "local":
-    STATIC_ROOT = STATIC_URL
-elif GS_BUCKET_NAME == "iipa-static":
-    project_id = ENV("GOOGLE_CLOUD_PROJECT")
-    STATIC_ROOT = GS_BUCKET_NAME
-    STATICFILES_DIRS = [
-        ("imageRater", BASE_DIR / "imageRater/static/imageRater"),
-        BASE_DIR / "static",
-    ]
-    STORAGES = {
-        "default": {
-            "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
-            "OPTIONS": {
-                "bucket_name": "iipa-uploads",
-                "project_id": project_id,
-                "default_acl": None,
-                "querystring_auth": False,
-                "location": "uploads/",
-                "credentials": GS_CREDENTIALS,
-            },
-        },
-        "staticfiles": {
-            "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
-            "OPTIONS": {
-                "bucket_name": f"{GS_BUCKET_NAME}",
-                "project_id": project_id,
-                "default_acl": None,
-                "querystring_auth": False,
-                "credentials": GS_CREDENTIALS,
-            },
-        },
-    }
-else:
-    LOGGER.debug(sys.exc_info())
-    raise Exception(
-        "No local .env or GS_BUCKET_NAME detected. No storage option found."
-    )
+STATIC_URL = BASE_DIR / "static"
+# if GS_BUCKET_NAME == "local":
+STATIC_ROOT = STATIC_URL
+# elif GS_BUCKET_NAME == "iipa-static":
+# project_id = ENV("GOOGLE_CLOUD_PROJECT")
+# STATIC_ROOT = GS_BUCKET_NAME
+# STATICFILES_DIRS = [
+#     ("imageRater", BASE_DIR / "imageRater/static/imageRater"),
+#     BASE_DIR / "static",
+# ]
+# STORAGES = {
+#     "default": {
+#         "default": {
+#             "ENGINE": "django.db.backends.postgresql",
+#             "NAME": "postgres",
+#             "USER": "postgres",
+#             "PASSWORD": "RDF6*KUD.BRQrbJ!k8tTR-FDEJ*!DxhEu99fR@@KYGKDcvbRqjxcJtiq*Kn!tvjx-Y.gDL8raLZZ2",
+#             "HOST": "127.0.0.1",
+#             "PORT": "5432",
+#         }
+#         # "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+#         # "OPTIONS": {
+#         #     "bucket_name": "iipa-uploads",
+#         #     "project_id": project_id,
+#         #     "default_acl": None,
+#         #     "querystring_auth": False,
+#         #     "location": "uploads/",
+#         #     "credentials": GS_CREDENTIALS,
+#         # },
+#     },
+#     "staticfiles": {
+#         "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+#         "OPTIONS": {
+#             "bucket_name": f"{GS_BUCKET_NAME}",
+#             "project_id": project_id,
+#             "default_acl": None,
+#             "querystring_auth": False,
+#             "credentials": GS_CREDENTIALS,
+#         },
+#     },
+# }
+# else:
+# LOGGER.debug(sys.exc_info())
+# raise Exception(
+#     "No local .env or GS_BUCKET_NAME detected. No storage option found."
+# )
 
 
 MEDIA_ROOT = BASE_DIR / "media"

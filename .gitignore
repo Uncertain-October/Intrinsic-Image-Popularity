@@ -26,6 +26,5 @@ IIPA/secret-*.txt
 .scannerwork/
 **/.DS_Store
 .DS_Store
-.DS_Store
 *.log
-.DS_Store
+IIPA/static/**

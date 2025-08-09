@@ -1,7 +1,8 @@
 from django.db import models
 from django import forms
-from django.core.files.uploadedfile import SimpleUploadedFile
+# from django.core.files.uploadedfile import SimpleUploadedFile
 import uuid
+from typing import cast
 
 
 # Create your models here.
@@ -9,7 +10,7 @@ class ImageRating(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     image = models.ImageField()
     url = models.URLField(default=str)
-    rating_obj = models.JSONField(default=dict)
+    rating_obj = models.JSONField(default=dict[str, float])
     rated_img_name = models.CharField(default=str)
     rated_value = models.FloatField(default=float)
     created_at = models.DateTimeField(auto_now_add=True)

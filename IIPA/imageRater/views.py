@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
+from typing import cast
 import os
 
 
@@ -19,11 +20,11 @@ from .models import ImageRatingForm, ImageRating
 @require_http_methods(["GET", "POST"])
 @xframe_options_exempt
 def rate_image(request):
-    LOGGER.debug(
-        "in rate image" + settings.ENV("AWS_SECRET_ACCESS_KEY")
-        if settings.ENV("AWS_SECRET_ACCESS_KEY") is not None
-        else "nope"
-    )
+    # LOGGER.debug(
+    #     "in rate image" + settings.ENV("AWS_SECRET_ACCESS_KEY")
+    #     if settings.ENV("AWS_SECRET_ACCESS_KEY") is not None
+    #     else "nope"
+    # )
     if request.method == "POST":
         LOGGER.debug(request.FILES)
         form = ImageRatingForm(request.POST, request.FILES)
